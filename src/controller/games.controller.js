@@ -14,7 +14,7 @@ export async function postGames(req, res) {
   const { name, image, stockTotal, pricePerDay } = req.body;
 
   try {
-    if (name && stockTotal && pricePerDay > 0) {
+    if (name && name.trim().length > 0 && stockTotal && pricePerDay > 0) {
       
       const gameExists = await db.query(
         `SELECT name FROM games WHERE name='${name}'`
