@@ -36,9 +36,8 @@ export async function postGames(req, res) {
       [name, image, stockTotal, pricePerDay]
     );
 
-    console.table(game.rows);
-
-    if (game.rows.length > 0) {
+    if (game.rowCount > 0) {
+      console.table(game.rows);
       return res.status(201).send(game.rows[0]);
     } else {
       return res.status(500).send("Falha ao salvar o jogo no banco de dados.");
