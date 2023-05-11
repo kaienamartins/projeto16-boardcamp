@@ -14,23 +14,30 @@ export async function postGames(req, res) {
   const { name, image, stockTotal, pricePerDay } = req.body;
 
   try {
-    if (!name || typeof name !== 'string' || name.trim().length === 0 || !stockTotal || !pricePerDay || stockTotal <= 0 || pricePerDay <= 0) {
-      return res.status(400).json({ error: "Dados inválidos!" });
-    }
+    if (name && stockTotal && pricePerDay > 0) {
+      
+      const gameExists = await db.query(
+        `SELECT name FROM games WHERE name='${name}'`
+      );
 
-    const gameExists = await db.query(`SELECT name FROM games WHERE name='${name}'`);
+      if (gameExists.rows.length > 0) {
+        return res.status(409).send("Esse jogo já existe!");
+      }
 
-    if (gameExists.rows.length > 0) {
-      return res.status(409).send("Esse jogo já existe!");
-    }
+      const game = await db.query(
+        `INSERT INTO games (name , image, "stockTotal", "pricePerDay") VALUES ('${name}', '${image}', ${stockTotal}, ${pricePerDay});`
+      );
 
-    const game = await db.query(`INSERT INTO games (name , image, "stockTotal", "pricePerDay") VALUES ('${name}', '${image}', ${stockTotal}, ${pricePerDay});`);
-
-    if (game.rowCount > 0) {
-      console.table(game.rows);
-      return res.status(201).send(game.rows[0]);
+      if (game.rowCount > 0) {
+        console.table(game.rows);
+        return res.status(201).send(game.rows[0]);
+      } else {
+        return res
+          .status(500)
+          .send("Falha ao salvar o jogo no banco de dados.");
+      }
     } else {
-      return res.status(500).send("Falha ao salvar o jogo no banco de dados.");
+      return res.status(400).send("Dados inválidos.");
     }
   } catch (error) {
     console.error(error);
