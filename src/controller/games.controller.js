@@ -18,20 +18,13 @@ export async function postGames(req, res) {
       return res.status(400).send("Dados inválidos!");
     }
 
-    const gameExists = await db.query("SELECT * FROM games WHERE name = $1", [
-      name,
-    ]);
+    const gameExists = await db.query(`SELECT name FROM games WHERE name='${name}'`);
 
     if (gameExists.rows.length > 0) {
       return res.status(409).send("Esse jogo já existe!");
     }
 
-    const game = await db.query(
-      'INSERT INTO games (name, image, stockTotal, pricePerDay) VALUES ($1, $2, $3, $4) RETURNING *',
-      [name, image, stockTotal,pricePerDay]
-    );
-
-    
+    const game = await db.query(`INSERT INTO games (name , image, "stockTotal", "pricePerDay") VALUES ('${name}', '${image}', ${stockTotal}, ${pricePerDay});`);
 
     if (game.rowCount > 0) {
       console.table(game.rows);
