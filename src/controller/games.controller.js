@@ -1,4 +1,4 @@
-import { db } from "../database/database.js";
+import { db } from "../database/database.connection.js";
 
 export async function getGames(req, res) {
   try {
@@ -11,7 +11,7 @@ export async function getGames(req, res) {
 }
 
 export async function postGames(req, res) {
-  const { name, stockTotal, image, pricePerDay } = req.body;
+  const { name, image, stockTotal, pricePerDay } = req.body;
 
   try {
     if (!name || !stockTotal || !pricePerDay || stockTotal<= 0 || pricePerDay <= 0) {
@@ -27,8 +27,8 @@ export async function postGames(req, res) {
     }
 
     const game = await db.query(
-      'INSERT INTO games (name, stockTotal, image, pricePerDay) VALUES ($1, $2, $3, $4) RETURNING *',
-      [name, stockTotal, image, pricePerDay]
+      'INSERT INTO games (name, image, stockTotal, pricePerDay) VALUES ($1, $2, $3, $4) RETURNING *',
+      [name, image, stockTotal,pricePerDay]
     );
 
     
@@ -42,5 +42,16 @@ export async function postGames(req, res) {
   } catch (error) {
     console.error(error);
     return res.status(500).send("Erro interno do servidor.");
+  }
+}
+
+export async function getGamesById(req, res) {
+  const { id } = req.params;
+
+  try {
+    const game = await db.query("SELECT * FROM games WHERE id = $1", [id]);
+    res.send(game.rows[0])
+  }catch (error) {
+    return res.status(500).send(error);
   }
 }
