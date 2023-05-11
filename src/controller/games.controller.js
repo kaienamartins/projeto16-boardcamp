@@ -15,7 +15,7 @@ export async function postGames(req, res) {
 
   try {
     if (!name || !stockTotal || !pricePerDay || stockTotal<= 0 || pricePerDay <= 0) {
-      return res.status(400).send("Dados inválidos!");
+      return res.status(400).json({ error: "Dados inválidos!" });
     }
 
     const gameExists = await db.query(`SELECT name FROM games WHERE name='${name}'`);
