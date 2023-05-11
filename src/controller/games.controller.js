@@ -31,6 +31,8 @@ export async function postGames(req, res) {
       [name, stockTotal, image, pricePerDay]
     );
 
+    
+
     if (game.rowCount > 0) {
       console.table(game.rows);
       return res.status(201).send(game.rows[0]);
