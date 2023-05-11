@@ -14,17 +14,25 @@ export async function postGames(req, res) {
   const { name, image, stockTotal, pricePerDay } = req.body;
 
   try {
-    if (!name || !stockTotal || !pricePerDay || stockTotal<= 0 || pricePerDay <= 0) {
-      return res.status(400).json({ error: "Dados inválidos!" });
-    }
+    !name ||
+      name.trim().length === 0 ||
+      !stockTotal ||
+      !pricePerDay ||
+      stockTotal <= 0 ||
+      pricePerDay <= 0;
+    return res.status(400).json({ error: "Dados inválidos!" });
 
-    const gameExists = await db.query(`SELECT name FROM games WHERE name='${name}'`);
+    const gameExists = await db.query(
+      `SELECT name FROM games WHERE name='${name}'`
+    );
 
     if (gameExists.rows.length > 0) {
       return res.status(409).send("Esse jogo já existe!");
     }
 
-    const game = await db.query(`INSERT INTO games (name , image, "stockTotal", "pricePerDay") VALUES ('${name}', '${image}', ${stockTotal}, ${pricePerDay});`);
+    const game = await db.query(
+      `INSERT INTO games (name , image, "stockTotal", "pricePerDay") VALUES ('${name}', '${image}', ${stockTotal}, ${pricePerDay});`
+    );
 
     if (game.rowCount > 0) {
       console.table(game.rows);
@@ -35,16 +43,5 @@ export async function postGames(req, res) {
   } catch (error) {
     console.error(error);
     return res.status(500).send("Erro interno do servidor.");
-  }
-}
-
-export async function getGamesById(req, res) {
-  const { id } = req.params;
-
-  try {
-    const game = await db.query("SELECT * FROM games WHERE id = $1", [id]);
-    res.send(game.rows[0])
-  }catch (error) {
-    return res.status(500).send(error);
   }
 }
