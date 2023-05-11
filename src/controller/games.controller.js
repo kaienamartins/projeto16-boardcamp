@@ -43,6 +43,7 @@ export async function postGames(req, res) {
       return res.status(500).send("Falha ao salvar o jogo no banco de dados.");
     }
   } catch (error) {
-    return res.status(500).send(error);
+    console.error(error);
+    return res.status(500).send("Erro interno do servidor.");
   }
 }
