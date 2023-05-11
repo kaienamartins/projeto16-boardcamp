@@ -6,6 +6,12 @@ export function validateSchema(schema) {
       const errors = validation.error.details.map((detail) => detail.message);
       return res.status(422).json({ errors });
     }
+
+    const { name } = req.body;
+    if (!name) {
+      return res.status(400).json({ error: "Campo 'name' é obrigatório." });
+    }
+
     next();
   };
 }
