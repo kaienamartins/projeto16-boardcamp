@@ -11,7 +11,7 @@ export async function getGames(req, res) {
 }
 
 export async function postGames(req, res) {
-  const { name, image, stockTotal, pricePerDay } = req.body;
+  const { name, stockTotal, image, pricePerDay } = req.body;
 
   try {
     if (!name || !stockTotal || !pricePerDay || stockTotal<= 0 || pricePerDay <= 0) {
@@ -27,8 +27,8 @@ export async function postGames(req, res) {
     }
 
     const game = await db.query(
-      'INSERT INTO games (name, image, "stockTotal", "pricePerDay") VALUES ($1, $2, $3, $4) RETURNING *',
-      [name, image, stockTotal, pricePerDay]
+      'INSERT INTO games (name, stockTotal, image, pricePerDay) VALUES ($1, $2, $3, $4) RETURNING *',
+      [name, stockTotal, image, pricePerDay]
     );
 
     if (game.rowCount > 0) {
