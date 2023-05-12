@@ -52,7 +52,6 @@ export async function postCustomers(req, res) {
   }
 }
 
-
 export async function putCustomers(req, res) {
   const { name, phone, cpf, birthday } = req.body;
 
@@ -61,15 +60,19 @@ export async function putCustomers(req, res) {
       return res.status(400).send("Dados inválidos!");
     }
 
-    const customer = await db.query(
-      `INSERT INTO customers (name, phone, cpf, birthday) VALUES ('${name}', '${phone}', '${cpf}', '${birthday}');`
+    const customerExists = await db.query(
+      `SELECT cpf FROM customers WHERE cpf='${cpf}'`
     );
 
-    if (customer.cpf === cpf) {
-      return res.status(409).send("Cliente já cadastrado!");
+    if (customerExists.rows.length === 0) {
+      return res.status(404).send("Cliente não encontrado!");
     }
 
-    return res.status(200).send();
+    const updatedCustomer = await db.query(
+      `UPDATE customers SET name='${name}', phone='${phone}', birthday='${birthday}' WHERE cpf='${cpf}' RETURNING *`
+    );
+
+    return res.status(200).send(updatedCustomer.rows[0]);
   } catch (error) {
     console.error(error);
     return res.status(500).send("Erro interno do servidor.");
