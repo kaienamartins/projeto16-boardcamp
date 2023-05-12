@@ -40,11 +40,18 @@ export async function postCustomers(req, res) {
     if (customerExists.rows.length > 0) {
       return res.status(409).send("Cliente já cadastrado!");
     }
+
+    const newCustomer = await db.query(
+      `INSERT INTO customers (name, phone, cpf, birthday) VALUES ('${name}', '${phone}', '${cpf}', '${birthday}') RETURNING *`
+    );
+
+    return res.status(201).send(newCustomer.rows[0]);
   } catch (error) {
     console.error(error);
     return res.status(500).send("Erro interno do servidor.");
   }
 }
+
 
 export async function putCustomers(req, res) {
   const { name, phone, cpf, birthday } = req.body;
