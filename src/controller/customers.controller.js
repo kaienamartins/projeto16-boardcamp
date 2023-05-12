@@ -29,7 +29,7 @@ export async function postCustomers(req, res) {
   const { name, phone, cpf, birthday } = req.body;
 
   try {
-    if (!name || !phone || !cpf || !birthday) {
+    if (!name || name.trim() === "" || !phone || !cpf || !birthday) {
       return res.status(400).send("Dados inválidos!");
     }
 
@@ -42,7 +42,8 @@ export async function postCustomers(req, res) {
     }
 
     const newCustomer = await db.query(
-      `INSERT INTO customers (name, phone, cpf, birthday) VALUES ('${name}', '${phone}', '${cpf}', '${birthday}') RETURNING *`
+      `INSERT INTO customers (name, phone, cpf, birthday) VALUES ($1, $2, $3, $4) RETURNING *`,
+      [name, phone, cpf, birthday]
     );
 
     return res.status(201).send(newCustomer.rows[0]);
