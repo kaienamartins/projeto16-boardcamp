@@ -3,7 +3,7 @@ import {
   getCustomers,
   postCustomers,
   getCustomersById,
-  putCustomers
+  putCustomers,
 } from "../controller/customers.controller.js";
 import { validateSchema } from "../middlewares/validateSchema.middleware.js";
 import { customersSchema } from "../schemas/customers.schema.js";
@@ -19,5 +19,4 @@ customersRouter.post(
 );
 customersRouter.put("/customers:id", putCustomers);
 
-
-export default clientsRouter;
+export default customersRouter;
