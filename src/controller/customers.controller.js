@@ -17,7 +17,7 @@ export async function getCustomersById(req, res) {
     const customers = await db.query(`SELECT * FROM customers WHERE id=${id}`);
 
     if (customers.rowCount === 0) {
-      return res.status(404).send("Cliente não encontrado!");
+      res.status(404).send("Cliente não encontrado!");
     }
     return res.status(201).send(customers.rows[0]);
   } catch (error) {
@@ -53,29 +53,29 @@ export async function postCustomers(req, res) {
   }
 }
 
-// export async function putCustomers(req, res) {
-//   const { name, phone, cpf, birthday } = req.body;
+export async function putCustomers(req, res) {
+  const { name, phone, cpf, birthday } = req.body;
 
-//   try {
-//     if (!name || !phone || !cpf || !birthday) {
-//       return res.status(400).send("Dados inválidos!");
-//     }
+  try {
+    if (!name || !phone || !cpf || !birthday) {
+      return res.status(400).send("Dados inválidos!");
+    }
 
-//     const customerExists = await db.query(
-//       `SELECT cpf FROM customers WHERE cpf='${cpf}'`
-//     );
+    const customerExists = await db.query(
+      `SELECT cpf FROM customers WHERE cpf='${cpf}'`
+    );
 
-//     if (customerExists.rows.length === 0) {
-//       return res.status(404).send("Cliente não encontrado!");
-//     }
+    if (customerExists.rows.length === 0) {
+      return res.status(404).send("Cliente não encontrado!");
+    }
 
-//     const updatedCustomer = await db.query(
-//       `UPDATE customers SET name='${name}', phone='${phone}', birthday='${birthday}' WHERE cpf='${cpf}' RETURNING *`
-//     );
+    const updatedCustomer = await db.query(
+      `UPDATE customers SET name='${name}', phone='${phone}', birthday='${birthday}' WHERE cpf='${cpf}' RETURNING *`
+    );
 
-//     return res.status(200).send(updatedCustomer.rows[0]);
-//   } catch (error) {
-//     console.error(error);
-//     return res.status(500).send("Erro interno do servidor.");
-//   }
-// }
+    return res.status(200).send(updatedCustomer.rows[0]);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send("Erro interno do servidor.");
+  }
+}
