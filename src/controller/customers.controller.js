@@ -3,8 +3,13 @@ import { db } from "../database/database.connection.js";
 export async function getCustomers(req, res) {
   try {
     const customers = await db.query("SELECT * FROM customers");
-    console.table(customers.rows);
-    res.status(200).send(customers.rows);
+    const formattedCustomers = customers.rows.map((customer) => ({
+      ...customer,
+      birthday: customer.birthday.toISOString().split("T")[0],
+    }));
+
+    console.table(formattedCustomers);
+    res.status(200).send(formattedCustomers);
   } catch (error) {
     res.status(500).send(error);
   }
@@ -19,7 +24,12 @@ export async function getCustomersById(req, res) {
     if (customers.rowCount === 0) {
       res.status(404).send("Cliente não encontrado!");
     }
-    return res.status(201).send(customers.rows[0]);
+    const formattedCustomer = {
+      ...customers.rows[0],
+      birthday: customers.rows[0].birthday.toISOString().split("T")[0],
+    };
+
+    return res.status(201).send(formattedCustomer);
   } catch (error) {
     res.status(500).send(error);
   }
