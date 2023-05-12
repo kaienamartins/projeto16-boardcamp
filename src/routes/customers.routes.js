@@ -17,6 +17,6 @@ customersRouter.post(
   validateSchema(customersSchema),
   postCustomers
 );
-customersRouter.put("/customers:id", putCustomers);
+customersRouter.put("/customers/:id", putCustomers);
 
 export default customersRouter;
