@@ -22,6 +22,8 @@ export async function getRentals(req, res) {
         returnDate: rental.returnDate
           ? rental.returnDate.toISOString().split("T")[0]
           : null,
+        originalPrice: rental.originalPrice,
+        delayFee: rental.delayFee,
       };
 
       if (rental.customer && rental.customer.id && rental.customer.name) {
@@ -110,10 +112,11 @@ export async function postRentals(req, res) {
 
 export async function postReturns(req, res) {
   const { id } = req.params;
-  
-  try {
 
-    const rentalExists = await db.query(`SELECT * FROM rentals WHERE id='${id}'`);
+  try {
+    const rentalExists = await db.query(
+      `SELECT * FROM rentals WHERE id='${id}'`
+    );
     if (rentalExists.rows.length === 0) {
       return res.status(404).send("Aluguel não encontrado!");
     }
@@ -126,13 +129,15 @@ export async function postReturns(req, res) {
     const rentDate = rentalExists.rows[0].rentDate.toISOString().split("T")[0];
     const daysRented = rentalExists.rows[0].daysRented;
     const pricePerDay = rentalExists.rows[0].originalPrice / daysRented;
-    const delayFee = returnDate > rentDate ? (returnDate - rentDate) * pricePerDay : 0;
-    
-    await db.query(`UPDATE rentals SET "returnDate"='${returnDate}', "delayFee"=${delayFee} WHERE id='${id}'`);
+    const delayFee =
+      returnDate > rentDate ? (returnDate - rentDate) * pricePerDay : 0;
+
+    await db.query(
+      `UPDATE rentals SET "returnDate"='${returnDate}', "delayFee"=${delayFee} WHERE id='${id}'`
+    );
 
     res.status(200).send();
-  }catch (error) {
+  } catch (error) {
     return res.status(500).send("Erro interno do servidor.");
   }
 }
-
