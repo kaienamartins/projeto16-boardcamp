@@ -64,29 +64,44 @@ export async function postCustomers(req, res) {
 }
 
 export async function putCustomers(req, res) {
+  const { id } = req.params;
   const { name, phone, cpf, birthday } = req.body;
 
-  try {
-    if (!name || !phone || !cpf || !birthday) {
-      return res.status(400).send("Dados inválidos!");
-    }
+  // Verificações de validação
+  if (!name || !phone || !cpf || !birthday) {
+    return res
+      .status(400)
+      .send(
+        "Dados inválidos! Verifique se todos os campos estão preenchidos corretamente."
+      );
+  }
 
-    const customerExists = await db.query(
-      `SELECT cpf FROM customers WHERE cpf='${cpf}'`
+  if (!/^\d{11}$/.test(cpf)) {
+    return res
+      .status(400)
+      .send("CPF inválido! O CPF deve ter 11 dígitos numéricos.");
+  }
+
+  try {
+    const existingCustomer = await db.query(
+      `SELECT cpf FROM customers WHERE cpf = $1 AND id != $2`,
+      [cpf, id]
     );
 
-    if (customerExists.rows.length > 0 && customerExists.rows[0].cpf !== cpf) {
-      return res.status(409).send("Cliente já cadastrado!");
-    } else if (customerExists.rows.length === 0) {
-      return res.status(404).send("Cliente não encontrado!");
-    } else if (!/^\d{11}$/.test(cpf)) {
-      return res.status(400).send("CPF inválido!");
-    } else {
-      const updatedCustomer = await db.query(
-        `UPDATE customers SET name='${name}', phone='${phone}', birthday='${birthday}' WHERE cpf='${cpf}' RETURNING *`
-      );
-      return res.status(200).send(updatedCustomer.rows[0]);
+    if (existingCustomer.rows.length > 0) {
+      return res.status(409).send("Esse CPF pertence a outra conta!");
     }
+
+    const updatedCustomer = await db.query(
+      `UPDATE customers SET name = $1, phone = $2, cpf = $3, birthday = $4 WHERE id = $5 RETURNING *`,
+      [name, phone, cpf, birthday, id]
+    );
+
+    if (updatedCustomer.rows.length === 0) {
+      return res.status(404).send("Cliente não encontrado!");
+    }
+
+    return res.status(200).send(updatedCustomer.rows[0]);
   } catch (error) {
     console.error(error);
     return res.status(500).send("Erro interno do servidor.");

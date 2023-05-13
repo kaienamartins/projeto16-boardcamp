@@ -12,11 +12,6 @@ export function validateSchema(schema) {
       return res.status(400).json({ error: "Campo 'name' é obrigatório." });
     }
 
-    const { cpf } = req.body;
-    if (!cpf) {
-      
-    }
-
     next();
   };
 }
