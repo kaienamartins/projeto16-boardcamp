@@ -67,7 +67,6 @@ export async function putCustomers(req, res) {
   const { id } = req.params;
   const { name, phone, cpf, birthday } = req.body;
 
-  // Verificações de validação
   if (!name || !phone || !cpf || !birthday) {
     return res
       .status(400)
@@ -80,6 +79,14 @@ export async function putCustomers(req, res) {
     return res
       .status(400)
       .send("CPF inválido! O CPF deve ter 11 dígitos numéricos.");
+  }
+
+  if (isNaN(Date.parse(birthday))) {
+    return res
+      .status(400)
+      .send(
+        "Data de aniversário inválida! (Utilize o formato aaaa-mm-dd. Ex: 2023-05-13)"
+      );
   }
 
   try {
