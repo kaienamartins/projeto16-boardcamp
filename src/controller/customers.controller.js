@@ -75,13 +75,14 @@ export async function putCustomers(req, res) {
       `SELECT cpf FROM customers WHERE cpf='${cpf}'`
     );
 
-    if (customerExists.rows.length === 0) {
-      return res.status(404).send("Cliente não encontrado!");
-    } else if (customerExists.cpf < 11) {
-      return res.status(400).send("CPF inválido!");
-    } else if (customerExists.rows.length > 0) {
+    if (customerExists.rows.length > 0 && customerExists.rows[0].cpf !== cpf) {
       return res.status(409).send("Cliente já cadastrado!");
+    } else if (customerExists.rows.length === 0) {
+      return res.status(404).send("Cliente não encontrado!");
+    } else if (cpf.length < 11) {
+      return res.status(400).send("CPF inválido!");
     }
+    
 
     const updatedCustomer = await db.query(
       `UPDATE customers SET name='${name}', phone='${phone}', birthday='${birthday}' WHERE cpf='${cpf}' RETURNING *`
