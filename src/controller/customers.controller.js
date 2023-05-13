@@ -79,13 +79,12 @@ export async function putCustomers(req, res) {
       return res.status(409).send("Cliente já cadastrado!");
     } else if (customerExists.rows.length === 0) {
       return res.status(404).send("Cliente não encontrado!");
-    } else if (cpf.length !== 11) {
+    } else if (!/^\d{11}$/.test(cpf)) {
       return res.status(400).send("CPF inválido!");
     } else {
       const updatedCustomer = await db.query(
         `UPDATE customers SET name='${name}', phone='${phone}', birthday='${birthday}' WHERE cpf='${cpf}' RETURNING *`
       );
-
       return res.status(200).send(updatedCustomer.rows[0]);
     }
   } catch (error) {
