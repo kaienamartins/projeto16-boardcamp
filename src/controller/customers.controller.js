@@ -77,6 +77,10 @@ export async function putCustomers(req, res) {
 
     if (customerExists.rows.length === 0) {
       return res.status(404).send("Cliente não encontrado!");
+    } else if (customerExists.cpf < 11) {
+      return res.status(400).send("CPF inválido!");
+    } else if (customerExists.rows.length > 0) {
+      return res.status(409).send("Cliente já cadastrado!");
     }
 
     const updatedCustomer = await db.query(
