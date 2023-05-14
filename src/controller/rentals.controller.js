@@ -114,9 +114,9 @@ export async function postReturns(req, res) {
   const { id } = req.params;
 
   try {
-    const rentalExists = await db.query(
-      `SELECT * FROM rentals WHERE id='${id}'`
-    );
+    const rentalExists = await db.query("SELECT * FROM rentals WHERE id=$1", [
+      id,
+    ]);
     if (rentalExists.rows.length === 0) {
       return res.status(404).send("Aluguel não encontrado!");
     }
@@ -130,9 +130,9 @@ export async function postReturns(req, res) {
     const daysRented = rentalExists.rows[0].daysRented;
     const gameId = rentalExists.rows[0].gameId;
 
-    const gamePrice = await db.query(
-      `SELECT price FROM games WHERE id='${gameId}'`
-    );
+    const gamePrice = await db.query("SELECT price FROM games WHERE id=$1", [
+      gameId,
+    ]);
     const pricePerDay = gamePrice.rows[0].price;
 
     const rentDateObj = new Date(rentDate);
@@ -148,7 +148,8 @@ export async function postReturns(req, res) {
     const delayFee = pricePerDay * delayInDays;
 
     await db.query(
-      `UPDATE rentals SET "returnDate"='${returnDate}', "delayFee"=${delayFee} WHERE id='${id}'`
+      'UPDATE rentals SET "returnDate"=$1, "delayFee"=$2 WHERE id=$3',
+      [returnDate, delayFee, id]
     );
 
     res.sendStatus(200);
