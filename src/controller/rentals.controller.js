@@ -128,7 +128,12 @@ export async function postReturns(req, res) {
     const returnDate = new Date().toISOString().split("T")[0];
     const rentDate = rentalExists.rows[0].rentDate.toISOString().split("T")[0];
     const daysRented = rentalExists.rows[0].daysRented;
-    const pricePerDay = rentalExists.rows[0].originalPrice;
+    const gameId = rentalExists.rows[0].gameId;
+
+    const gamePrice = await db.query(
+      `SELECT price FROM games WHERE id='${gameId}'`
+    );
+    const pricePerDay = gamePrice.rows[0].price;
 
     const rentDateObj = new Date(rentDate);
     rentDateObj.setHours(0, 0, 0, 0);
