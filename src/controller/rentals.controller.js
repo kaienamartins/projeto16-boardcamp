@@ -111,52 +111,53 @@ export async function postRentals(req, res) {
 }
 
 export async function postReturns(req, res) {
-  const { id } = req.params;
+  const { id } = req.body;
 
   try {
-    const rentalExists = await db.query("SELECT * FROM rentals WHERE id=$1", [
-      id,
-    ]);
-    if (rentalExists.rows.length === 0) {
+    if (!id) {
+      return res.status(400).send("Dados inválidos!");
+    }
+
+    const rental = await db.query(`SELECT * FROM rentals WHERE id='${id}'`);
+
+    if (rental.rows.length === 0) {
       return res.status(404).send("Aluguel não encontrado!");
     }
 
-    if (rentalExists.rows[0].returnDate) {
+    const returnDate = new Date().toISOString().split("T")[0];
+    const rentDate = rental.rows[0].rentDate.toISOString().split("T")[0];
+    const daysRented = rental.rows[0].daysRented;
+    const pricePerDay = rental.rows[0]["game.pricePerDay"];
+
+    if (returnDate < rentDate) {
+      return res.status(400).send("Data de retorno inválida!");
+    }
+
+    if (rental.rows[0].returnDate) {
       return res.status(400).send("Aluguel já finalizado!");
     }
 
-    const returnDate = new Date().toISOString().split("T")[0];
-    const rentDate = rentalExists.rows[0].rentDate.toISOString().split("T")[0];
-    const daysRented = rentalExists.rows[0].daysRented;
-    const gameId = rentalExists.rows[0].gameId;
-
-    const gamePrice = await db.query("SELECT price FROM games WHERE id=$1", [
-      gameId,
-    ]);
-    const pricePerDay = gamePrice.rows[0].price;
-
-    const rentDateObj = new Date(rentDate);
-    rentDateObj.setHours(0, 0, 0, 0);
-    const returnDateObj = new Date(returnDate);
-    returnDateObj.setHours(0, 0, 0, 0);
-    const rentedDurationInMilliseconds = returnDateObj - rentDateObj;
-
-    const rentedDurationInDays = Math.floor(
-      rentedDurationInMilliseconds / (1000 * 60 * 60 * 24)
+    const delayInDays = Math.max(
+      0,
+      daysBetween(returnDate, rentDate) - daysRented
     );
-    const delayInDays = Math.max(0, rentedDurationInDays - daysRented);
-    const delayFee = pricePerDay * delayInDays;
+    const delayFee = delayInDays * pricePerDay;
 
     await db.query(
-      'UPDATE rentals SET "returnDate"=$1, "delayFee"=$2 WHERE id=$3',
-      [returnDate, delayFee, id]
+      `UPDATE rentals SET "returnDate"='${returnDate}', "delayFee"=${delayFee} WHERE id='${id}'`
     );
 
-    res.sendStatus(200);
+    res.status(200).send();
   } catch (error) {
-    console.error(error);
     return res.status(500).send("Erro interno do servidor.");
   }
+}
+
+function daysBetween(date1, date2) {
+  const oneDay = 24 * 60 * 60 * 1000;
+  const firstDate = new Date(date1);
+  const secondDate = new Date(date2);
+  return Math.round(Math.abs((firstDate - secondDate) / oneDay));
 }
 
 export async function deleteRentals(req, res) {
