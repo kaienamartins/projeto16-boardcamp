@@ -158,7 +158,10 @@ export async function deleteRentals(req, res) {
       return res.status(404).send("Aluguel não encontrado!");
     }
 
-    if (rental.rows[0].returnDate) {
+    if (
+      rental.rows[0].returnDate !== null &&
+      rental.rows[0].returnDate !== undefined
+    ) {
       return res.status(400).send("Aluguel já finalizado!");
     }
 
