@@ -111,7 +111,7 @@ export async function postRentals(req, res) {
 }
 
 export async function postReturns(req, res) {
-  const { id } = req.body;
+  const { id } = req.params;
 
   try {
     if (!id) {
