@@ -27,7 +27,7 @@ export async function getRentals(req, res) {
       };
 
       if (rental["customer.id"] !== null && rental["customer.name"] !== null) {
-        formattedRental.customer = {
+        formattedRental.customerId = {
           id: rental["customer.id"],
           name: rental["customer.name"],
         };
@@ -136,7 +136,7 @@ export async function postReturns(req, res) {
 
     const delayInDays = Math.max(
       0,
-      Math.ceil(delayInMilliseconds / (1000 * 60 * 60 * 24)) - daysRented
+      Math.ceil(delayInMilliseconds / (1000 * 60 * 60 * 24)) - daysRented + 1
     );
 
     const delayFee = delayInDays * pricePerDay;
