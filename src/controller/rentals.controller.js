@@ -130,36 +130,14 @@ export async function postReturns(req, res) {
     const daysRented = rentalExists.rows[0].daysRented;
     const pricePerDay = rentalExists.rows[0].originalPrice / daysRented;
     const delayFee =
-      returnDate > rentDate ? (returnDate - rentDate) * pricePerDay : 0;
+      returnDate > rentDate
+        ? (new Date(returnDate).getTime() - new Date(rentDate).getTime()) *
+          pricePerDay
+        : 0;
 
     await db.query(
       `UPDATE rentals SET "returnDate"='${returnDate}', "delayFee"=${delayFee} WHERE id='${id}'`
     );
-
-    const rental = await db.query(`SELECT * FROM rentals WHERE id='${id}'`);
-
-    if (rental.rows.length === 0) {
-      return res.status(404).send("Aluguel não encontrado!");
-    }
-
-    const formattedRental = {
-      id: rental.rows[0].id,
-      customerId: rental.rows[0].customerId,
-      gameId: rental.rows[0].gameId,
-      rentDate: rental.rows[0].rentDate.toISOString().split("T")[0],
-      daysRented: rental.rows[0].daysRented,
-      returnDate: rental.rows[0].returnDate
-        ? rental.rows[0].returnDate.toISOString().split("T")[0]
-        : null,
-      originalPrice: rental.rows[0].originalPrice,
-      delayFee: rental.rows[0].delayFee,
-    };
-
-    const { error } = rentalsSchema.validate(formattedRental);
-    if (error) {
-      console.error(error);
-      return res.status(500).send("Erro interno do servidor.");
-    }
 
     res.status(200).send();
   } catch (error) {
