@@ -136,7 +136,7 @@ export async function postReturns(req, res) {
 
     const delayInDays = Math.max(
       0,
-      delayInMilliseconds / (1000 * 60 * 60 * 24) - daysRented + 1
+      delayInMilliseconds / (1000 * 60 * 60 * 24) - daysRented
     );
 
     const delayFee = delayInDays > 0 ? delayInDays * pricePerDay : 0;
@@ -145,7 +145,7 @@ export async function postReturns(req, res) {
       `UPDATE rentals SET "returnDate"='${returnDate}', "delayFee"=${delayFee} WHERE id='${id}'`
     );
 
-    res.status(200).send();
+    res.sendStatus(200);
   } catch (error) {
     console.error(error);
     return res.status(500).send("Erro interno do servidor.");
