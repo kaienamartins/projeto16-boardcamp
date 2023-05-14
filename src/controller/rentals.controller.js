@@ -131,7 +131,9 @@ export async function postReturns(req, res) {
     const pricePerDay = rentalExists.rows[0].originalPrice;
 
     const rentDateObj = new Date(rentDate);
+    rentDateObj.setHours(0, 0, 0, 0);
     const returnDateObj = new Date(returnDate);
+    returnDateObj.setHours(0, 0, 0, 0);
     const rentedDurationInMilliseconds = returnDateObj - rentDateObj;
 
     const rentedDurationInDays = Math.ceil(
