@@ -128,13 +128,14 @@ export async function postReturns(req, res) {
     const returnDate = new Date().toISOString().split("T")[0];
     const rentDate = rentalExists.rows[0].rentDate.toISOString().split("T")[0];
     const daysRented = rentalExists.rows[0].daysRented;
-    const pricePerDay = rentalExists.rows[0].originalPrice / daysRented;
+    const pricePerDay = rentalExists.rows[0].originalPrice;
 
     const rentDateObj = new Date(rentDate);
     const returnDateObj = new Date(returnDate);
     const delayInMilliseconds = returnDateObj - rentDateObj;
     const delayInDays = Math.floor(delayInMilliseconds / (1000 * 60 * 60 * 24));
-    const delayFee = delayInDays > 0 ? delayInDays * pricePerDay * 100 : 0;
+    const delayFee =
+      delayInDays > 0 ? delayInDays * pricePerDay * daysRented : 0;
 
     await db.query(
       `UPDATE rentals SET "returnDate"='${returnDate}', "delayFee"=${delayFee} WHERE id='${id}'`
