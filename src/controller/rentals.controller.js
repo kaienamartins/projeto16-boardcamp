@@ -147,3 +147,25 @@ export async function postReturns(req, res) {
   }
 }
 
+export async function deleteRentals(req, res) {
+  const { id } = req.params;
+
+  try {
+    const rentalExists = await db.query(
+      `SELECT * FROM rentals WHERE id='${id}'`
+    );
+    if (rentalExists.rows.length === 0) {
+      return res.status(404).send("Aluguel não encontrado!");
+    }
+
+    if (rentalExists.rows[0].returnDate) {
+      return res.status(400).send("Aluguel já finalizado!");
+    }
+
+    await db.query(`DELETE FROM rentals WHERE id='${id}'`);
+
+    res.status(200).send();
+  } catch (error) {
+    return res.status(500).send("Erro interno do servidor.");
+  }
+}
