@@ -114,29 +114,32 @@ export async function postReturns(req, res) {
   const { id } = req.params;
 
   try {
-    const rental = await db.query(`SELECT * FROM rentals WHERE id='${id}'`);
-
-    if (rental.rows.length === 0) {
+    const rentalExists = await db.query(
+      `SELECT * FROM rentals WHERE id='${id}'`
+    );
+    if (rentalExists.rows.length === 0) {
       return res.status(404).send("Aluguel não encontrado!");
     }
 
-    if (rental.rows[0].returnDate) {
+    if (rentalExists.rows[0].returnDate) {
       return res.status(400).send("Aluguel já finalizado!");
     }
 
     const returnDate = new Date().toISOString().split("T")[0];
-    const rentDate = rental.rows[0].rentDate.toISOString().split("T")[0];
-    const daysRented = rental.rows[0].daysRented;
-    const pricePerDay = rental.rows[0].originalPrice / daysRented;
+    const rentDate = rentalExists.rows[0].rentDate.toISOString().split("T")[0];
+    const daysRented = rentalExists.rows[0].daysRented;
+    const pricePerDay = rentalExists.rows[0].originalPrice / daysRented;
 
     const rentDateObj = new Date(rentDate);
     const returnDateObj = new Date(returnDate);
-    const delayInMilliseconds = Math.max(returnDateObj - rentDateObj, 0);
-    const delayInDays = Math.ceil(delayInMilliseconds / (1000 * 60 * 60 * 24));
-    const delayFee = delayInDays * pricePerDay;
+    const delayInMilliseconds = returnDateObj - rentDateObj;
+    const delayInDays = Math.floor(delayInMilliseconds / (1000 * 60 * 60 * 24));
+    const delayFee = delayInDays > 0 ? delayInDays * pricePerDay : 0;
 
     await db.query(
-      `UPDATE rentals SET "returnDate"='${returnDate}', "delayFee"=${delayFee} WHERE id='${id}'`
+      `UPDATE rentals SET "returnDate"='${returnDate}', "delayFee"=${delayFee.toFixed(
+        2
+      )} WHERE id='${id}'`
     );
 
     res.status(200).send();
