@@ -26,17 +26,17 @@ export async function getRentals(req, res) {
         delayFee: rental.delayFee,
       };
 
-      if (rental.customer && rental.customer.id && rental.customer.name) {
+      if (rental["customer.id"] !== null && rental["customer.name"] !== null) {
         formattedRental.customer = {
-          id: rental.customer.id,
-          name: rental.customer.name,
+          id: rental["customer.id"],
+          name: rental["customer.name"],
         };
       }
 
-      if (rental.game && rental.game.id && rental.game.name) {
+      if (rental["game.id"] !== null && rental["game.name"] !== null) {
         formattedRental.game = {
-          id: rental.game.id,
-          name: rental.game.name,
+          id: rental["game.id"],
+          name: rental["game.name"],
         };
       }
 
