@@ -131,8 +131,9 @@ export async function postReturns(req, res) {
     const pricePerDay = rentalExists.rows[0].originalPrice / daysRented;
     const delayFee =
       returnDate > rentDate
-        ? (new Date(returnDate).getTime() - new Date(rentDate).getTime()) *
-          pricePerDay
+        ? Math.ceil(
+            (new Date(returnDate) - new Date(rentDate)) / (1000 * 60 * 60 * 24)
+          ) * pricePerDay
         : 0;
 
     await db.query(
