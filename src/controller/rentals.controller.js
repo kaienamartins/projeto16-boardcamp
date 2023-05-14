@@ -152,23 +152,19 @@ export async function deleteRentals(req, res) {
   const { id } = req.params;
 
   try {
-    const rentalExists = await db.query(
-      `SELECT * FROM rentals WHERE id='${id}'`
-    );
-    if (rentalExists.rows.length === 0) {
+    const rental = await db.query(`SELECT * FROM rentals WHERE id='${id}'`);
+
+    if (rental.rows.length === 0) {
       return res.status(404).send("Aluguel não encontrado!");
     }
 
-    if (
-      rentalExists.rows[0].returnDate !== null &&
-      rentalExists.rows[0].returnDate !== undefined
-    ) {
+    if (rental.rows[0].returnDate) {
       return res.status(400).send("Aluguel já finalizado!");
     }
 
     await db.query(`DELETE FROM rentals WHERE id='${id}'`);
 
-    return res.status(200).send();
+    return res.sendStatus(200);
   } catch (error) {
     return res.status(500).send("Erro interno do servidor.");
   }
