@@ -164,7 +164,7 @@ export async function deleteRentals(req, res) {
 
     await db.query(`DELETE FROM rentals WHERE id='${id}'`);
 
-    res.status(200).send();
+    return res.status(200).send();
   } catch (error) {
     return res.status(500).send("Erro interno do servidor.");
   }
