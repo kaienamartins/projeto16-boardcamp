@@ -136,7 +136,7 @@ export async function postReturns(req, res) {
     returnDateObj.setHours(0, 0, 0, 0);
     const rentedDurationInMilliseconds = returnDateObj - rentDateObj;
 
-    const rentedDurationInDays = Math.ceil(
+    const rentedDurationInDays = Math.floor(
       rentedDurationInMilliseconds / (1000 * 60 * 60 * 24)
     );
     const delayInDays = Math.max(0, rentedDurationInDays - daysRented);
