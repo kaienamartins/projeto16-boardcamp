@@ -148,7 +148,7 @@ export async function postReturns(req, res) {
 
     res.sendStatus(200);
   } catch (error) {
-    console.error(error);
+    console.error("Error details:", error);
     return res.status(500).send("Erro interno do servidor.");
   }
 }
