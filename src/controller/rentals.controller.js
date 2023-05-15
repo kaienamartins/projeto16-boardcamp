@@ -166,7 +166,7 @@ export async function deleteRentals(req, res) {
       rental.rows[0].returnDate !== null &&
       rental.rows[0].returnDate !== undefined
     ) {
-      return res.status(400).send("Aluguel já finalizado!");
+      return res.sendStatus(200);
     }
 
     await db.query(`DELETE FROM rentals WHERE id='${id}'`);
