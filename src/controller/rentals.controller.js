@@ -137,8 +137,10 @@ export async function postReturns(req, res) {
     const returnDateObj = new Date(returnDate);
 
     const delayInMilliseconds = returnDateObj.getTime() - rentDateObj.getTime();
-    const delayInDays =
-      Math.max(0, delayInMilliseconds / (1000 * 60 * 60 * 24)) - daysRented;
+    const delayInDays = Math.max(
+      0,
+      Math.ceil(delayInMilliseconds / (1000 * 60 * 60 * 24)) - daysRented
+    );
 
     const delayFee = delayInDays > 0 ? delayInDays * pricePerDay : 0;
 
