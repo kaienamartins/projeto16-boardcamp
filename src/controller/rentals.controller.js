@@ -135,14 +135,11 @@ export async function postReturns(req, res) {
 
     const rentDateObj = new Date(rentDate);
     const returnDateObj = new Date(returnDate);
-    const delayInMilliseconds = returnDateObj - rentDateObj;
 
-    const delayInDays = Math.max(
-      0,
-      Math.ceil(delayInMilliseconds / (1000 * 60 * 60 * 24)) - daysRented
-    );
+    const delayInMilliseconds = returnDateObj.getTime() - rentDateObj.getTime();
+    const delayInDays = Math.floor(delayInMilliseconds / (1000 * 60 * 60 * 24));
 
-    const delayFee = delayInDays > 0 ? delayInDays * pricePerDay : 0;
+    const delayFee = Math.max(0, delayInDays - daysRented) * pricePerDay;
 
     await db.query(
       `UPDATE rentals SET "returnDate"='${returnDate}', "delayFee"=${delayFee} WHERE id='${id}'`
@@ -166,15 +163,14 @@ export async function deleteRentals(req, res) {
     }
 
     if (
-      rental.rows[0].returnDate !== null &&
-      rental.rows[0].returnDate !== undefined
+      rental.rows[0].returnDate === null ||
+      rental.rows[0].returnDate === undefined
     ) {
-      return res.sendStatus(400);
+      await db.query(`DELETE FROM rentals WHERE id='${id}'`);
+      return res.sendStatus(200);
     }
 
-    await db.query(`DELETE FROM rentals WHERE id='${id}'`);
-
-    return res.sendStatus(200);
+    return res.sendStatus(400);
   } catch (error) {
     return res.status(500).send("Erro interno do servidor.");
   }
