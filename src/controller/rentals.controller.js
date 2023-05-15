@@ -117,18 +117,21 @@ export async function postReturns(req, res) {
     const rentalExists = await db.query(
       `SELECT * FROM rentals WHERE id='${id}'`
     );
+
     if (rentalExists.rows.length === 0) {
       return res.status(404).send("Aluguel não encontrado!");
     }
 
-    if (rentalExists.rows[0].returnDate) {
+    const rental = rentalExists.rows[0];
+
+    if (rental.returnDate) {
       return res.status(400).send("Aluguel já finalizado!");
     }
 
     const returnDate = new Date().toISOString().split("T")[0];
-    const rentDate = rentalExists.rows[0].rentDate.toISOString().split("T")[0];
-    const daysRented = rentalExists.rows[0].daysRented;
-    const pricePerDay = rentalExists.rows[0].originalPrice;
+    const rentDate = rental.rentDate.toISOString().split("T")[0];
+    const daysRented = rental.daysRented;
+    const pricePerDay = rental.originalPrice;
 
     const rentDateObj = new Date(rentDate);
     const returnDateObj = new Date(returnDate);
@@ -166,7 +169,7 @@ export async function deleteRentals(req, res) {
       rental.rows[0].returnDate !== null &&
       rental.rows[0].returnDate !== undefined
     ) {
-      return res.sendStatus(200);
+      return res.sendStatus(400);
     }
 
     await db.query(`DELETE FROM rentals WHERE id='${id}'`);
