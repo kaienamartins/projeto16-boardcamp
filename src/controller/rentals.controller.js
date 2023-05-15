@@ -127,7 +127,8 @@ export async function postReturns(req, res) {
     }
 
     const returnDate = new Date().toISOString().split("T")[0];
-    const rentDate = rentalData.rentDate.toISOString().split("T")[0];
+    const rentDate = rentalData.rentDate ? rentalData.rentDate.toISOString().split("T")[0] : null;
+
     const daysRented = rentalData.daysRented;
 
     const rentDateObj = new Date(rentDate);
